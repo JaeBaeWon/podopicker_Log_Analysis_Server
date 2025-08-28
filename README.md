@@ -29,14 +29,20 @@
 
 ## 2. 프로젝트 개요
 
-본 프로젝트는 **CloudFront 로그를 S3에서 수집 → 파싱/분석 → AI 인사이트 생성 → Slack 전송**까지 자동화하는 로그 분석 수집기입니다.
-
+본 프로젝트는 **CloudFront 로그를 S3에서 수집 → 파싱/분석 → AI 인사이트 생성 → Slack 전송**까지 자동화하는 로그 분석 수집기입니다.  
 운영자는 Slack을 통해 **거의 실시간 로그 인사이트**를 확인할 수 있습니다.
 
-## 3. 아키텍처 개요
+### 💸 비용 고려 및 구조 설계 배경
 
+- 로그 분석은 AWS 기반 Lambda 또는 Athena가 아닌, **온프레미스 VMware 환경의 Ubuntu VM**에서 수행됩니다.
+- 이를 통해 서버리스 분석 구조에 비해 **운영 비용을 대폭 절감**할 수 있습니다.
+- **5분 주기 다운로드 + 월간 8,000회 이하 요청 기준**,  
+  S3 → 로컬 다운로드 API 및 데이터 전송 비용은 **월 $5 미만**으로 측정되었습니다.
+- 데이터 다운로드량도 크지 않아, **비용 대비 인사이트 효율이 매우 높은 구조**입니다.
+
+## 3. 아키텍처 개요
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6575a254-a968-477f-b124-eea2dce0389f" width="600" alt="log_analysis_diagram"/>
+  <img src="https://github.com/user-attachments/assets/89498dd3-df68-49a9-bd06-082f07a0355f" width="700" alt="log_analysis_diagram"/>
 </p>
 
 ## 4. 아키텍처 상세 흐름
@@ -110,7 +116,8 @@ flask run --host=0.0.0.0 --port=5000
 
 ## 9. 실험/시뮬레이션 테스트
 
-Collector를 검증하기 위하여, **의도적으로 CloudFront 로그를 발생시키는 bash 스크립트**를 실행하여 다양한 에러 상황 및 봇 요청을 시뮬레이션할 수 있습니다.
+Collector를 검증하기 위하여, **의도적으로 CloudFront 로그를 발생시키는 bash 스크립트**를 실행하여 다양한 에러 상황 및 봇 요청 시뮬레이션 실시
+<img width="2559" height="1596" alt="log_analysis_test" src="https://github.com/user-attachments/assets/4eb88ec4-aebf-487a-b960-4a2f83c19f9c" />
 
 ```bash
 #!/bin/bash
